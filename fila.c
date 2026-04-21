@@ -1,54 +1,81 @@
-#ifndef FILACI_H
-#define FILACI_H
+#include <stdio.h>
+#include <stdlib.h>
+#include "fila.h"
 
-// Enum que define o tipo de dado armazenado na fila
-// Pode ser um inteiro ou um caractere
-typedef enum {
-    TIPO_INT,   // representa números inteiros
-    TIPO_CHAR   // representa caracteres (ex: operadores)
-} TipoDado;
+// Cria a fila
+FilaCI* criarFilaCI(int qtd) {
+    FilaCI *fila = (FilaCI*) malloc(sizeof(FilaCI));
+    if (fila == NULL) return NULL;
 
-// Estrutura que representa um elemento da fila
-typedef struct {
-    TipoDado tipo;     // indica se o elemento é int ou char
-    int valor_int;     // armazena o valor inteiro (se tipo for TIPO_INT)
-    char valor_char;   // armazena o caractere (se tipo for TIPO_CHAR)
-} Elemento;
+    fila->elem = (Elemento*) malloc(qtd * sizeof(Elemento));
+    if (fila->elem == NULL) {
+        free(fila);
+        return NULL;
+    }
 
-// Estrutura da fila circular com tipos mistos (int e char)
-typedef struct {
-    int inicio;        // índice do início da fila
-    int fim;           // índice do fim da fila
-    int qtdAtual;      // quantidade atual de elementos na fila
-    int capacidade;    // capacidade máxima da fila
-    Elemento *elem;    // ponteiro para o vetor de elementos
-} FilaCI;
+    fila->inicio = 0;
+    fila->fim = -1;
+    fila->qtdAtual = 0;
+    fila->capacidade = qtd;
 
-// Função para criar uma fila com capacidade definida
-// Retorna um ponteiro para a fila criada
-FilaCI* criarFilaCI(int qtd);
+    return fila;
+}
+//Verifica se a fila está cheia
+int filaCheiaCI(FilaCI *fila) {
+    return (fila->qtdAtual == fila->capacidade);
+}
 
-// Verifica se a fila está cheia
-// Retorna 1 (true) se estiver cheia, 0 (false) caso contrário
-int filaCheiaCI(FilaCI *fila);
+//Verifica se a fila está vazia
+int filaVaziaCI(FilaCI *fila) {
+    return (fila->qtdAtual == 0);
+}
 
-// Insere um elemento na fila (enfileirar)
-// tipo: define se é int ou char
-// num: valor inteiro (usado se tipo = TIPO_INT)
-// op: valor char (usado se tipo = TIPO_CHAR)
-// Retorna 1 se inseriu com sucesso, 0 se falhou
-int enfileirarCI(FilaCI *fila, TipoDado tipo, int num, char op);
+//Insere elemento na fila (circular)
+int enfileirarCI(FilaCI *fila, TipoDado tipo, int num, char op) {
+    if (fila == NULL || filaCheiaCI(fila))
+        return 0;
 
-// Verifica se a fila está vazia
-// Retorna 1 (true) se estiver vazia, 0 (false) caso contrário
-int filaVaziaCI(FilaCI *fila);
+    // Avança circularmente
+    fila->fim = (fila->fim + 1) % fila->capacidade;
 
-// Remove um elemento da fila (desenfileirar)
-// Retorna o elemento removido
-Elemento desenfileirarCI(FilaCI *fila);
+    fila->elem[fila->fim].tipo = tipo;
 
-// Libera a memória ocupada pela fila
-// Retorna NULL após liberar (boa prática para evitar ponteiro solto)
-FilaCI* liberarMemoriaFilaCI(FilaCI *fila);
+    if (tipo == TIPO_INT)
+        fila->elem[fila->fim].valor_int = num;
+    else
+        fila->elem[fila->fim].valor_char = op;
 
-#endif
+    fila->qtdAtual++;
+
+    return 1;
+}
+//Remove elemento da fila
+Elemento desenfileirarCI(FilaCI *fila) {
+    Elemento vazio;
+
+    if (fila == NULL || filaVaziaCI(fila)) {
+        // Retorno padrão (evita lixo)
+        vazio.tipo = TIPO_INT;
+        vazio.valor_int = 0;
+        return vazio;
+    }
+
+    Elemento removido = fila->elem[fila->inicio];
+
+    // Avança circularmente
+    fila->inicio = (fila->inicio + 1) % fila->capacidade;
+    fila->qtdAtual--;
+
+    return removido;
+}
+
+//Libera memória da fila
+FilaCI* liberarMemoriaFilaCI(FilaCI *fila) {
+    if (fila != NULL) {
+        if (fila->elem != NULL)
+            free(fila->elem);
+
+        free(fila);
+    }
+    return NULL;
+}

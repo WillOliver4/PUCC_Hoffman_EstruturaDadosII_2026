@@ -1,7 +1,8 @@
 #ifndef FILACI_H
 #define FILACI_H
-// Enum que define o tipo de dado armazenado na fila
+#include <stddef.h> // para NULL (boa prática)
 
+// Enum que define o tipo de dado armazenado na fila
 // Pode ser um inteiro ou um caractere
 typedef enum {
     TIPO_INT,   // representa números inteiros
@@ -10,8 +11,10 @@ typedef enum {
 // Estrutura que representa um elemento da fila
 typedef struct {
     TipoDado tipo;     // indica se o elemento é int ou char
+        union {
     int valor_int;     // armazena o valor inteiro (se tipo for TIPO_INT)
     char valor_char;   // armazena o caractere (se tipo for TIPO_CHAR)
+    };
 } Elemento;
 // Estrutura da fila circular com tipos mistos (int e char)
 typedef struct {
