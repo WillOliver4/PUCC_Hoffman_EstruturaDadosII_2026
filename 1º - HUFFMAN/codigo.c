@@ -1,0 +1,115 @@
+#include <stdlib.h>
+#include "codigo.h"
+
+boolean novo_codigo (Codigo* c /* por referência */)
+{
+    c->byte=(U8*)malloc(1*sizeof(U8));
+    if (c->byte==NULL) return false;
+
+    c->capacidade=8;
+    c->tamanho=0;
+    return true;
+}
+
+void free_codigo (Codigo* c /* por referência */)
+{
+    if (c->byte!=NULL) free(c->byte);
+    c->byte=NULL;
+}
+
+boolean adiciona_bit (Codigo* c /* por referência */,
+                      U8 valor /* 0 ou 1 */)
+{
+    if (c->tamanho==c->capacidade)
+    {
+        U8* novo=(U8*)malloc((c->capacidade/8+1)*sizeof(U8));
+        if (novo==NULL) return false;
+
+        for(int i=0;i<c->capacidade/8;i++)
+            novo[i]=c->byte[i];
+
+        free(c->byte);
+        c->byte=novo;
+
+        c->capacidade+=8;
+    }
+
+    c->byte[c->capacidade/8-1]<<=1;
+
+    if (valor==1)
+        c->byte[c->capacidade/8-1]|=1;
+
+    c->tamanho++;
+    return true;
+}
+
+
+boolean joga_fora_bit (Codigo* c /* por referência */)
+{
+    if (c->tamanho==0) return false;
+
+    c->byte[c->capacidade/8-1]>>=1;
+    c->tamanho--;
+
+    if (c->capacidade>8 && c->capacidade-c->tamanho==8)
+    {
+        U8* novo=(U8*)malloc((c->capacidade/8-1)*sizeof(U8));
+        if (novo==NULL) return false;
+
+        for(int i=0;i<c->tamanho/8;i++)
+            novo[i]=c->byte[i];
+
+        free(c->byte);
+        c->byte=novo;
+
+        c->capacidade-=8;
+    }
+    
+    return true;
+}
+
+boolean pega_byte (Codigo c /* por valor "*/,
+                   U8 qual /* por valor */,
+                   U8* b /*por referencia */)
+{
+	if (qual>c.capacidade/8) return false;
+	
+	*b=c[qual];
+	return true;
+}
+
+boolean clone (Codigo original, /* por valor */
+               Codigo* copia    /* por referencia */)
+{
+    copia->byte=(U8*)malloc(original.capacidade/8*sizeof(U8));
+    if (copia->byte==NULL) return false;
+
+
+    for(int i=0;i<original.capacidade/8;i++)
+        copia->byte[i]=original.byte[i];
+
+    copia->capacidade=original.capacidade;
+    copia->tamanho=original.tamanho;
+    return true;
+}
+
+char* toString (Codigo c)
+{
+    char* retorno = (char*)malloc((c.tamanho+3)*sizeof(char));
+    if (retorno == NULL) return NULL;
+
+    int bits_ultimo_byte = c.tamanho % 8;
+    // se tamanho é multiplo de 8, o ultimo byte está cheio
+    if (bits_ultimo_byte == 0) bits_ultimo_byte = 8;
+
+    int pos = 0;
+    for (int b = 0; b < c.capacidade/8; b++)
+    {
+        int bits_neste_byte = (b < c.capacidade/8-1) ? 8 : bits_ultimo_byte;
+        for (int i = bits_neste_byte-1; i >= 0; i--)
+            retorno[pos++] = ((c.byte[b] >> i) & 1) ? '1' : '0';
+    }
+
+    retorno[c.tamanho] = '\0';
+    return retorno;
+}
