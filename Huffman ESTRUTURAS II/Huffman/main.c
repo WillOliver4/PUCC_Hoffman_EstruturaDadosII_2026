@@ -25,31 +25,41 @@ void construir_arvore_huffman(Tabela_de_frequencias *tab, NoHuffman **raiz);
 void gerar_codigos(NoHuffman *no, Codigo *codigo_atual, Codigo *tabela_codigos[256]);
 void compactar_arquivo(const char *nome_entrada, const char *nome_saida);
 void descompactar_arquivo(const char *nome_entrada, const char *nome_saida);
+FILE *abrir_arquivo_entrada(const char *nome_arquivo, const char *modo);
 void liberar_arvore(NoHuffman *no);
 NoHuffman *criar_no(U8 byte, U64 frequencia, NoHuffman *esquerda, NoHuffman *direita);
 
 // Função principal que gerencia compactação/descompactação
-int main(int argc, char *argv[]) {
-// argc é o parametro main que indica o numnero total de argumentos passados, argument count
-// agrv é uma array de ponteiros para strings, cada elemento é um arghumento.
-//agrv[0] é o nome do programa, agrv[1] é a opção (-c ou -d), agrv[2] é o arquivo de entrada e agrv[3] é o arquivo de saída.
-    if (argc != 4) {
-        printf("Uso:\n");
-        printf("  Compactar: %s -c arquivo_entrada arquivo_saida.huf\n", argv[0]);
-        printf("  Descompactar: %s -d arquivo_entrada.huf arquivo_saida\n", argv[0]);
+int main() {
+    char opcao[10];
+    char arquivo_entrada[256];
+    char arquivo_saida[256];
+
+    printf("Digite compactar ou descompactar.\n");
+    printf("Entrada: arquivo existente. Saida: nome diferente da entrada.\n");
+    printf("Se compactar, use saida com .huf.\n");
+    printf("Acao: ");
+    scanf("%s", opcao);
+
+    printf("Entrada: ");
+    scanf("%s", arquivo_entrada);
+
+    printf("Saida: ");
+    scanf("%s", arquivo_saida);
+
+    if (strcmp(arquivo_entrada, arquivo_saida) == 0) {
+        printf("Entrada e saida devem ser diferentes.\n");
         return 1;
     }
-// -c = compactar, -d = descompactar
-    // Decide entre compactar ou descompactar
-//strcmp é uma função da biblioteca string.h que compara duas strings. Retorna 0 se as strings são iguais, um valor negativo se a primeira string é menor que a segunda, e um valor positivo se a primeira string é maior que a segunda.
-//argv[1] é a opção passada pelo usuário, que deve ser "-c" para compactar ou "-d" para descompactar. A função strcmp compara essa opção com as strings "-c" e "-d" para determinar qual ação executar.
 
-    if (strcmp(argv[1], "-c") == 0) {
-        compactar_arquivo(argv[2], argv[3]);
-    } else if (strcmp(argv[1], "-d") == 0) {
-        descompactar_arquivo(argv[2], argv[3]);
+    if (strcmp(opcao, "compactar") == 0) {
+        compactar_arquivo(arquivo_entrada, arquivo_saida);
+        printf("Arquivo compactado com sucesso!\n");
+    } else if (strcmp(opcao, "descompactar") == 0) {
+        descompactar_arquivo(arquivo_entrada, arquivo_saida);
+        printf("Arquivo descompactado com sucesso!\n");
     } else {
-        printf("Opção inválida. Use -c para compactar ou -d para descompactar.\n");
+        printf("Opcao invalida. Digite compactar ou descompactar.\n");
         return 1;
     }
     return 0;
@@ -66,6 +76,24 @@ NoHuffman *criar_no(U8 byte, U64 frequencia, NoHuffman *esquerda, NoHuffman *dir
     no->direita = direita;
     
     return no;
+}
+
+FILE *abrir_arquivo_entrada(const char *nome_arquivo, const char *modo) {
+    FILE *arquivo = fopen(nome_arquivo, modo);
+    if (arquivo != NULL) return arquivo;
+
+    char caminho[512];
+    snprintf(caminho, sizeof(caminho), "..\\%s", nome_arquivo);
+    arquivo = fopen(caminho, modo);
+    if (arquivo != NULL) return arquivo;
+
+    snprintf(caminho, sizeof(caminho), "..\\..\\%s", nome_arquivo);
+    arquivo = fopen(caminho, modo);
+    if (arquivo != NULL) return arquivo;
+
+    fprintf(stderr, "Erro ao abrir arquivo de entrada: %s\n", nome_arquivo);
+    perror("fopen");
+    return NULL;
 }
 
 // Liberar a memória da árvore de Huffman 
@@ -169,19 +197,20 @@ void compactar_arquivo(const char *nome_entrada, const char *nome_saida) {
     Tabela_de_frequencias tab;
     nova_tabela_de_frequencias(&tab);
     
-    FILE *entrada = fopen(nome_entrada, "rb");
+    FILE *entrada = abrir_arquivo_entrada(nome_entrada, "rb");
     if (entrada == NULL) {
-        printf("Erro ao abrir arquivo de entrada\n");
         exit(1);
     }
     
     // Contar a frequência de cada byte
     U8 byte;
+    U64 tamanho_original = 0;
     while (fread(&byte, sizeof(U8), 1, entrada) == 1) {
         if (!inclua_byte(byte, &tab)) {
             printf("Erro ao incluir byte na tabela\n");
             exit(1);
         }
+        tamanho_original++;
     }
     fclose(entrada);
     
@@ -207,7 +236,8 @@ void compactar_arquivo(const char *nome_entrada, const char *nome_saida) {
         exit(1);
     }
     
-    // Escreve cabeçalho com as frequências para reconstrução da árvore
+    // Escreve cabeçalho com o tamanho original e as frequências para reconstrução da árvore
+    fwrite(&tamanho_original, sizeof(U64), 1, saida);
     for (U16 i = 0; i < 256; i++) {
         U64 freq = 0;
         if (tab.vetor[i] != NULL) {
@@ -217,9 +247,8 @@ void compactar_arquivo(const char *nome_entrada, const char *nome_saida) {
     }
     
     //Compactar os dados
-    entrada = fopen(nome_entrada, "rb");
+    entrada = abrir_arquivo_entrada(nome_entrada, "rb");
     if (entrada == NULL) {
-        printf("Erro ao abrir arquivo de entrada\n");
         exit(1);
     }
     
@@ -273,16 +302,21 @@ void compactar_arquivo(const char *nome_entrada, const char *nome_saida) {
 void descompactar_arquivo(const char *nome_entrada, const char *nome_saida) {
 	
     //Ler frequências do cabeçalho
-    FILE *entrada = fopen(nome_entrada, "rb");
+    FILE *entrada = abrir_arquivo_entrada(nome_entrada, "rb");
     if (entrada == NULL) {
-        printf("Erro ao abrir arquivo compactado\n");
         exit(1);
     }
     
     Tabela_de_frequencias tab;
     nova_tabela_de_frequencias(&tab);
     
-    // Ler a tabela de frequências do arquivo compactado
+    // Ler o tamanho original e a tabela de frequências do arquivo compactado
+    U64 tamanho_original;
+    if (fread(&tamanho_original, sizeof(U64), 1, entrada) != 1) {
+        printf("Erro ao ler tamanho original\n");
+        exit(1);
+    }
+
     for (U16 i = 0; i < 256; i++) {
         U64 freq;
         if (fread(&freq, sizeof(U64), 1, entrada) != 1) {
@@ -317,10 +351,11 @@ void descompactar_arquivo(const char *nome_entrada, const char *nome_saida) {
     NoHuffman *no_atual = raiz;
     U8 byte;
     int bit_pos = 7; // Começa pelo bit mais significativo
-    
+    U64 bytes_escritos = 0;
+
     // Navegação pela árvore até encontrar um byte original
-    while (fread(&byte, sizeof(U8), 1, entrada) == 1) {
-        while (bit_pos >= 0) {
+    while (fread(&byte, sizeof(U8), 1, entrada) == 1 && bytes_escritos < tamanho_original) {
+        while (bit_pos >= 0 && bytes_escritos < tamanho_original) {
             U8 bit = (byte >> bit_pos) & 1;
             bit_pos--;
             
@@ -333,6 +368,7 @@ void descompactar_arquivo(const char *nome_entrada, const char *nome_saida) {
             // Quando chega em uma folha, escreve o byte original
             if (no_atual->esquerda == NULL && no_atual->direita == NULL) {
                 fwrite(&(no_atual->byte), sizeof(U8), 1, saida);
+                bytes_escritos++;
                 no_atual = raiz;
             }
         }

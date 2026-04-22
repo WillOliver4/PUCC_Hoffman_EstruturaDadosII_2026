@@ -1,0 +1,30 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compilar Huffman",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "-Wall",
+                "-Wextra",
+                "-g3",
+                "main.c",
+                "codigo.c",
+                "tabela_de_frequencias.c",
+                "-o",
+                "output/main.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/Huffman ESTRUTURAS II/Huffman"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
