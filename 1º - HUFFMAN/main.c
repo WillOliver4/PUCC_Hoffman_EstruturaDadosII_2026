@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "codigo.h"
+#include "fila.h"
+#include "arvore_utils.h"
 
 int main ()
 {

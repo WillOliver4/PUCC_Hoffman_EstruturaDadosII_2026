@@ -1,81 +1,39 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "fila.h"
+#include <stdlib.h>
 
-// Cria a fila
-FilaCI* criarFilaCI(int qtd) {
-    FilaCI *fila = (FilaCI*) malloc(sizeof(FilaCI));
-    if (fila == NULL) return NULL;
-
-    fila->elem = (Elemento*) malloc(qtd * sizeof(Elemento));
-    if (fila->elem == NULL) {
-        free(fila);
-        return NULL;
-    }
-
-    fila->inicio = 0;
-    fila->fim = -1;
-    fila->qtdAtual = 0;
-    fila->capacidade = qtd;
-
-    return fila;
+Fila* criarFila(int capacidade) {
+    Fila* f = malloc(sizeof(Fila)); // Aloca memória para a estrutura da fila
+    f->dados = malloc(sizeof(void*) * capacidade); // Aloca memória para os dados da fila
+    f->inicio = 0; // Índice do início da fila
+    f->fim = 0; // Índice do fim da fila
+    f->tamanho = 0; // Tamanho atual da fila
+    f->capacidade = capacidade; // Capacidade máxima da fila
+    return f; // Retorna o ponteiro para a fila criada
 }
-//Verifica se a fila está cheia
-int filaCheiaCI(FilaCI *fila) {
-    return (fila->qtdAtual == fila->capacidade);
+// Verifica se a fila está vazia
+int filaVazia(Fila* f) { 
+    return f->tamanho == 0;
 }
+// Verifica se a fila está cheia
+int enfileirar(Fila* f, void* item) {
+    if (f->tamanho == f->capacidade) return 0; // Fila cheia, não é possível enfileirar
 
-//Verifica se a fila está vazia
-int filaVaziaCI(FilaCI *fila) {
-    return (fila->qtdAtual == 0);
+    f->dados[f->fim] = item; // Adiciona o item no fim da fila
+    f->fim = (f->fim + 1) % f->capacidade; // Atualiza o índice do fim (circular)
+    f->tamanho++; // Incrementa o tamanho da fila
+    return 1; // Enfileiramento bem-sucedido
 }
-
-//Insere elemento na fila (circular)
-int enfileirarCI(FilaCI *fila, TipoDado tipo, int num, char op) {
-    if (fila == NULL || filaCheiaCI(fila))
-        return 0;
-
-    // Avança circularmente
-    fila->fim = (fila->fim + 1) % fila->capacidade;
-
-    fila->elem[fila->fim].tipo = tipo;
-
-    if (tipo == TIPO_INT)
-        fila->elem[fila->fim].valor_int = num;
-    else
-        fila->elem[fila->fim].valor_char = op;
-
-    fila->qtdAtual++;
-
-    return 1;
+// Remove e retorna o item do início da fila
+void* desenfileirar(Fila* f) {
+    if (filaVazia(f)) return NULL; // Fila vazia, não é possível desenfileirar
+// Armazena o item do início da fila, atualiza o índice do início e decrementa o tamanho
+    void* item = f->dados[f->inicio]; // Armazena o item a ser retornado
+    f->inicio = (f->inicio + 1) % f->capacidade; // Atualiza o índice do início (circular)
+    f->tamanho--; // Decrementa o tamanho da fila
+    return item; // Retorna o item desenfileirado
 }
-//Remove elemento da fila
-Elemento desenfileirarCI(FilaCI *fila) {
-    Elemento vazio;
-
-    if (fila == NULL || filaVaziaCI(fila)) {
-        // Retorno padrão (evita lixo)
-        vazio.tipo = TIPO_INT;
-        vazio.valor_int = 0;
-        return vazio;
-    }
-
-    Elemento removido = fila->elem[fila->inicio];
-
-    // Avança circularmente
-    fila->inicio = (fila->inicio + 1) % fila->capacidade;
-    fila->qtdAtual--;
-
-    return removido;
-}
-
-//Libera memória da fila
-FilaCI* liberarMemoriaFilaCI(FilaCI *fila) {
-    if (fila != NULL) {
-        if (fila->elem != NULL)
-            free(fila->elem);
-
-        free(fila);
-    }
-    return NULL;
+// Libera a memória alocada para a fila
+void liberarFila(Fila* f) {
+    free(f->dados); // Libera a memória alocada para os dados da fila
+    free(f); // Libera a memória alocada para a estrutura da fila
 }
