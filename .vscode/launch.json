@@ -2,6 +2,27 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Executar Huffman",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "c:/01 - PUC/02 - AULAS/3º SEMESTRE/MOBILE/PUCC_Hoffman_EstruturaDadosII_2026/Huffman ESTRUTURAS II/Huffman/output/huffman.exe",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "c:/01 - PUC/02 - AULAS/3º SEMESTRE/MOBILE/PUCC_Hoffman_EstruturaDadosII_2026/Huffman ESTRUTURAS II/Huffman",
+      "environment": [],
+      "externalConsole": true,
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ],
+      "preLaunchTask": "Compilar Huffman"
+    },
+    {
       "name": "C/C++ Runner: Debug Session",
       "type": "cppdbg",
       "request": "launch",

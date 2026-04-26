@@ -9,18 +9,16 @@
                 "-Wall",
                 "-Wextra",
                 "-g3",
-                "main.c",
-                "codigo.c",
-                "tabela_de_frequencias.c",
+                "c:/01 - PUC/02 - AULAS/3º SEMESTRE/MOBILE/PUCC_Hoffman_EstruturaDadosII_2026/Huffman ESTRUTURAS II/Huffman/main.c",
+                "c:/01 - PUC/02 - AULAS/3º SEMESTRE/MOBILE/PUCC_Hoffman_EstruturaDadosII_2026/Huffman ESTRUTURAS II/Huffman/huffman.c",
+                "c:/01 - PUC/02 - AULAS/3º SEMESTRE/MOBILE/PUCC_Hoffman_EstruturaDadosII_2026/Huffman ESTRUTURAS II/Huffman/compactar.c",
+                "c:/01 - PUC/02 - AULAS/3º SEMESTRE/MOBILE/PUCC_Hoffman_EstruturaDadosII_2026/Huffman ESTRUTURAS II/Huffman/descompactar.c",
+                "c:/01 - PUC/02 - AULAS/3º SEMESTRE/MOBILE/PUCC_Hoffman_EstruturaDadosII_2026/Huffman ESTRUTURAS II/Huffman/codigo.c",
+                "c:/01 - PUC/02 - AULAS/3º SEMESTRE/MOBILE/PUCC_Hoffman_EstruturaDadosII_2026/Huffman ESTRUTURAS II/Huffman/tabela_de_frequencias.c",
                 "-o",
-                "output/main.exe"
+                "c:/01 - PUC/02 - AULAS/3º SEMESTRE/MOBILE/PUCC_Hoffman_EstruturaDadosII_2026/Huffman ESTRUTURAS II/Huffman/output/huffman.exe"
             ],
-            "options": {
-                "cwd": "${workspaceFolder}/Huffman ESTRUTURAS II/Huffman"
-            },
-            "problemMatcher": [
-                "$gcc"
-            ],
+            "problemMatcher": ["$gcc"],
             "group": {
                 "kind": "build",
                 "isDefault": true

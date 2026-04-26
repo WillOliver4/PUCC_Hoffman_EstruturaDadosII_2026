@@ -1,0 +1,29 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compilar Huffman",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "main.c",
+                "huffman.c",
+                "compactar.c",
+                "descompactar.c",
+                "tabela_de_frequencias.c",
+                "codigo.c",
+                "-o",
+                "main.exe",
+                "-Wall"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": ["$gcc"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}

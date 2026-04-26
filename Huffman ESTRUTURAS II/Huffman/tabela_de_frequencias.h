@@ -21,6 +21,10 @@ typedef struct {
 } Tabela_de_frequencias;
 
 void nova_tabela_de_frequencias (Tabela_de_frequencias* tab /* por referência */);
+boolean novo_no_de_arvore_binaria (Ptr_de_no_de_arvore_binaria* novo,
+                                   Ptr_de_no_de_arvore_binaria esq,
+                                   Elemento inf,
+                                   Ptr_de_no_de_arvore_binaria dir);
 boolean inclua_byte (U8 byte /* por valor */,
                      Tabela_de_frequencias* tab /* por referencia */);
 void junte_nodos_no_inicio_do_vetor (Tabela_de_frequencias* tab /* por referencia */);
